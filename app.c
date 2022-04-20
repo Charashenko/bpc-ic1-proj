@@ -122,17 +122,11 @@ void edit_record() {
     fclose(fp);
     char **keys = calloc(rows, sizeof(char *));
     for (int i = 0; i < rows; i++) {
-      keys[i] = calloc(
-          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
-                                  // sizeof(char) is almost always one, but it's
-                                  // there only for the readability of the code.
+      keys[i] = calloc(1, sizeof(char) * 255);
     }
     char **values = calloc(rows, sizeof(char *));
     for (int i = 0; i < rows; i++) {
-      values[i] = calloc(
-          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
-                                  // sizeof(char) is almost always one, but it's
-                                  // there only for the readability of the code.
+      values[i] = calloc(1, sizeof(char) * 255);
     }
     fp = fopen(STORE_PATH, "r");
     int i = 0;
