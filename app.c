@@ -1,10 +1,24 @@
-#include <openssl/sha.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define STORE_PATH "store"
 
+// Checks if the store is empty
+int is_empty() {
+  FILE *fp;
+  char key[255];
+  char value[255];
+  fp = fopen(STORE_PATH, "r");
+  int empty = 1;
+  while (fscanf(fp, "%s %s", key, value) != EOF) {
+    empty = 0;
+  }
+  fclose(fp);
+  return empty;
+}
+
+// Checks if store contains specified key
 int contains_key(char searched_key[255]) {
   FILE *fp;
   char key[255];
@@ -45,6 +59,7 @@ void add_record() {
   fclose(fp);
 }
 
+// Deletes chosen record
 void delete_record() {
   char keyToDel[255];
   printf("Choose key to delete:\n");
@@ -62,17 +77,11 @@ void delete_record() {
     fclose(fp);
     char **keys = calloc(rows - 1, sizeof(char *));
     for (int i = 0; i < rows - 1; i++) {
-      keys[i] = calloc(
-          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
-                                  // sizeof(char) is almost always one, but it's
-                                  // there only for the readability of the code.
+      keys[i] = calloc(1, sizeof(char) * 255);
     }
     char **values = calloc(rows - 1, sizeof(char *));
     for (int i = 0; i < rows - 1; i++) {
-      values[i] = calloc(
-          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
-                                  // sizeof(char) is almost always one, but it's
-                                  // there only for the readability of the code.
+      values[i] = calloc(1, sizeof(char) * 255);
     }
     fp = fopen(STORE_PATH, "r");
     int i = 0;
@@ -92,6 +101,7 @@ void delete_record() {
   }
 }
 
+// Edits value of the chosen record
 void edit_record() {
   char keyToEdit[255];
   char newValue[255];
@@ -128,7 +138,7 @@ void edit_record() {
     int i = 0;
     while (fscanf(fp, "%s %s", key, value) != EOF) {
       strcpy(keys[i], key);
-      if (strcmp(key, keyToEdit) == 0) {        
+      if (strcmp(key, keyToEdit) == 0) {
         strcpy(values[i], newValue);
       } else {
         strcpy(values[i], value);
@@ -144,34 +154,61 @@ void edit_record() {
   }
 }
 
+void delete_all() {
+  FILE *fp;
+  fp = fopen(STORE_PATH, "w");
+  fclose(fp);
+}
+
 void menu() {
   system("clear");
   printf("Welcome to your secure key value store.\n");
   int choice = 0;
   while (1) {
-    printf("Available actions:\n");
-    printf("[1] Add new record\n");
-    printf("[2] Delete record\n");
-    printf("[3] Edit record\n");
-    printf("[4] Show all records\n");
-    printf("[5] Quit\n");
+    if (!is_empty()) {
+      printf("Available actions:\n");
+      printf("[1] Add new record\n");
+      printf("[2] Delete record\n");
+      printf("[3] Edit record\n");
+      printf("[4] Show all records\n");
+      printf("[5] Delete all records\n");
+      printf("[6] Quit\n");
+    } else {
+      printf("Available actions: (Store is empty)\n");
+      printf("[1] Add new record\n");
+      printf("[2] Quit\n");
+    }
     scanf("%d", &choice);
-    switch (choice) {
-    case 1:
-      add_record();
-      break;
-    case 2:
-      delete_record();
-      break;
-    case 3:
-      edit_record();
-      break;
-    case 4:
-      print_records();
-      break;
-    default:
-      exit(EXIT_SUCCESS);
-      break;
+    if (is_empty()) {
+      switch (choice) {
+      case 1:
+        add_record();
+        break;
+      default:
+        exit(EXIT_SUCCESS);
+        break;
+      }
+    } else {
+      switch (choice) {
+      case 1:
+        add_record();
+        break;
+      case 2:
+        delete_record();
+        break;
+      case 3:
+        edit_record();
+        break;
+      case 4:
+        print_records();
+        break;
+      case 5:
+        delete_all();
+        break;
+      default:
+        exit(EXIT_SUCCESS);
+        break;
+      }
     }
   }
 }
