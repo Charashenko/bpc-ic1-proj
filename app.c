@@ -60,18 +60,22 @@ void delete_record() {
       rows++;
     }
     fclose(fp);
-    char **keys = calloc(rows - 1, sizeof(char*));
-    for(int i = 0 ; i < rows - 1 ; i++)
-    {
-      keys[i] = calloc(1, sizeof(char)*255); //Basically it is MY_STRING_LENGTH as sizeof(char) is almost always one, but it's there only for the readability of the code.
+    char **keys = calloc(rows - 1, sizeof(char *));
+    for (int i = 0; i < rows - 1; i++) {
+      keys[i] = calloc(
+          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
+                                  // sizeof(char) is almost always one, but it's
+                                  // there only for the readability of the code.
     }
-    char **values = calloc(rows - 1, sizeof(char*));
-    for(int i = 0 ; i < rows - 1 ; i++)
-    {
-      values[i] = calloc(1, sizeof(char)*255); //Basically it is MY_STRING_LENGTH as sizeof(char) is almost always one, but it's there only for the readability of the code.
+    char **values = calloc(rows - 1, sizeof(char *));
+    for (int i = 0; i < rows - 1; i++) {
+      values[i] = calloc(
+          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
+                                  // sizeof(char) is almost always one, but it's
+                                  // there only for the readability of the code.
     }
     fp = fopen(STORE_PATH, "r");
-    int i =0;
+    int i = 0;
     while (fscanf(fp, "%s %s", key, value) != EOF) {
       if (strcmp(key, keyToDel) != 0) {
         strcpy(keys[i], key);
@@ -81,14 +85,64 @@ void delete_record() {
     }
     fclose(fp);
     fp = fopen(STORE_PATH, "w");
-    for (int i = 0; i<rows-1; i++) {
+    for (int i = 0; i < rows - 1; i++) {
       fprintf(fp, "%s %s\n", keys[i], values[i]);
     }
     fclose(fp);
   }
 }
 
-void edit_record() {}
+void edit_record() {
+  char keyToEdit[255];
+  char newValue[255];
+  printf("Choose key to edit:\n");
+  print_records();
+  scanf("%s", keyToEdit);
+  printf("Input new value:\n");
+  scanf("%s", newValue);
+  if (contains_key(keyToEdit)) {
+    FILE *fp;
+    char key[255];
+    char value[255];
+    int rows = 0;
+    fp = fopen(STORE_PATH, "r");
+    while (fscanf(fp, "%s %s", key, value) != EOF) {
+      rows++;
+    }
+    fclose(fp);
+    char **keys = calloc(rows, sizeof(char *));
+    for (int i = 0; i < rows; i++) {
+      keys[i] = calloc(
+          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
+                                  // sizeof(char) is almost always one, but it's
+                                  // there only for the readability of the code.
+    }
+    char **values = calloc(rows, sizeof(char *));
+    for (int i = 0; i < rows; i++) {
+      values[i] = calloc(
+          1, sizeof(char) * 255); // Basically it is MY_STRING_LENGTH as
+                                  // sizeof(char) is almost always one, but it's
+                                  // there only for the readability of the code.
+    }
+    fp = fopen(STORE_PATH, "r");
+    int i = 0;
+    while (fscanf(fp, "%s %s", key, value) != EOF) {
+      strcpy(keys[i], key);
+      if (strcmp(key, keyToEdit) == 0) {        
+        strcpy(values[i], newValue);
+      } else {
+        strcpy(values[i], value);
+      }
+      i++;
+    }
+    fclose(fp);
+    fp = fopen(STORE_PATH, "w");
+    for (int i = 0; i < rows; i++) {
+      fprintf(fp, "%s %s\n", keys[i], values[i]);
+    }
+    fclose(fp);
+  }
+}
 
 void menu() {
   system("clear");
