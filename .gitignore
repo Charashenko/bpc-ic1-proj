@@ -2,5 +2,6 @@
 build/
 doc/
 test/
+__pycache__/
 notes.md
 store

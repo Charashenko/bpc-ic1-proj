@@ -237,7 +237,7 @@ void admin() {
     scanf("%d", &choice);
     switch (choice) {
     case 1:
-      strcpy(edit_cmd, "sudo vim ");
+      strcpy(edit_cmd, "sudo python scripts/syntaxchecker.py ");
       strcat(edit_cmd, STORE_PATH);
       system(edit_cmd);
       break;
