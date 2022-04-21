@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define STORE_PATH "store"
+char STORE_PATH[256] = "store";
 
 // Checks if the store is empty
 int is_empty() {
@@ -71,20 +71,26 @@ void delete_record() {
     char value[255];
     int rows = 0;
     fp = fopen(STORE_PATH, "r");
+    // count rows in file
     while (fscanf(fp, "%s %s", key, value) != EOF) {
       rows++;
     }
     fclose(fp);
+    // allocate memory for number of rows - 1
     char **keys = calloc(rows - 1, sizeof(char *));
+    // allocate memory for string in each row
     for (int i = 0; i < rows - 1; i++) {
       keys[i] = calloc(1, sizeof(char) * 255);
     }
+    // allocate memory for number of rows - 1
     char **values = calloc(rows - 1, sizeof(char *));
+    // allocate memory for string in each row
     for (int i = 0; i < rows - 1; i++) {
       values[i] = calloc(1, sizeof(char) * 255);
     }
     fp = fopen(STORE_PATH, "r");
     int i = 0;
+    // copy old key-value pair to allocated memory if not equal to "keyToDel"
     while (fscanf(fp, "%s %s", key, value) != EOF) {
       if (strcmp(key, keyToDel) != 0) {
         strcpy(keys[i], key);
@@ -94,6 +100,7 @@ void delete_record() {
     }
     fclose(fp);
     fp = fopen(STORE_PATH, "w");
+    // write all key value pairs to file
     for (int i = 0; i < rows - 1; i++) {
       fprintf(fp, "%s %s\n", keys[i], values[i]);
     }
@@ -116,20 +123,26 @@ void edit_record() {
     char value[255];
     int rows = 0;
     fp = fopen(STORE_PATH, "r");
+    // count rows in file
     while (fscanf(fp, "%s %s", key, value) != EOF) {
       rows++;
     }
     fclose(fp);
+    // allocate memory for number of rows
     char **keys = calloc(rows, sizeof(char *));
+    // allocate memory for string in each row
     for (int i = 0; i < rows; i++) {
       keys[i] = calloc(1, sizeof(char) * 255);
     }
+    // allocate memory for number of rows
     char **values = calloc(rows, sizeof(char *));
+    // allocate memory for string in each row
     for (int i = 0; i < rows; i++) {
       values[i] = calloc(1, sizeof(char) * 255);
     }
     fp = fopen(STORE_PATH, "r");
     int i = 0;
+    // copy old key value pairs, if key equal to keyToEdit, copy edited pair
     while (fscanf(fp, "%s %s", key, value) != EOF) {
       strcpy(keys[i], key);
       if (strcmp(key, keyToEdit) == 0) {
@@ -141,6 +154,7 @@ void edit_record() {
     }
     fclose(fp);
     fp = fopen(STORE_PATH, "w");
+    // write new pairs to file
     for (int i = 0; i < rows; i++) {
       fprintf(fp, "%s %s\n", keys[i], values[i]);
     }
@@ -148,12 +162,14 @@ void edit_record() {
   }
 }
 
+// Deletes all recors
 void delete_all() {
   FILE *fp;
   fp = fopen(STORE_PATH, "w");
   fclose(fp);
 }
 
+// Main menu
 void menu() {
   system("clear");
   printf("Welcome to your secure key value store.\n");
@@ -201,27 +217,64 @@ void menu() {
         break;
       default:
         exit(EXIT_SUCCESS);
-        break;
       }
     }
   }
 }
 
-void pwnd() { printf("\npwnd\n"); }
+// Admin mode aka buffer overflow exploit
+void admin() {
+  int choice = 0;
+  char edit_cmd[256];
+  printf("Welcome to admin mode:\n");
+  while (1) {
+    choice = 0;
+    printf("Available actions:\n");
+    printf("[1] Open store in editor\n");
+    printf("[2] Change store path\n");
+    printf("[3] Print store path\n");
+    printf("[4] Exit\n");
+    scanf("%d", &choice);
+    switch (choice) {
+    case 1:
+      strcpy(edit_cmd, "vim ");
+      strcat(edit_cmd, STORE_PATH);
+      system(edit_cmd);
+      break;
+    case 2:
+      printf("Input new path: ");
+      scanf("%s", STORE_PATH);
+      break;
+    case 3:
+      printf("Store path: %s\n", STORE_PATH);
+      break;
+    default:
+      exit(EXIT_SUCCESS);
+    }
+  }
+}
 
+// Login "menu"
 int login() {
-  char pass[10];
+  char pass[256];
   char ctrl[] = "ibe";
   printf("Enter your password: ");
   scanf("%s", pass);
   return strcmp(pass, ctrl) == 0;
 }
 
-int main() {
-  int login_valid = 0;
-  login_valid = login();
+int main(int argc, char *argv[]) {
+  int admin_mode = 0;
+  char admin_input[10];
+  char admin_pass[] = "admin";
 
-  if (login_valid) {
-    menu();
+  if (argc > 1) {
+    strcpy(admin_input, argv[1]);
+  }
+  if (admin_mode) {
+    admin();
+  } else {
+    if (login())
+      menu();
   }
 }
