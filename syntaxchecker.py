@@ -1,7 +1,6 @@
 import sys
 import os
 
-sys.path.append("../proj/")
 import exploitable as e
 
 
